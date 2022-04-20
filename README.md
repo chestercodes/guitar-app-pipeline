@@ -30,6 +30,8 @@ If the manifest is from the `main` branch then a deployment will be started on t
 
 Once deployed the trigger lambda can be run manually to deploy to specific environments and colours.
 
+![Pipeline](PipelineDiagram.drawio.png)
+
 ## Getting started
 
 To bootstrap the project, go to the github actions tab and run the `Bootstrap pipeline` workflow.
