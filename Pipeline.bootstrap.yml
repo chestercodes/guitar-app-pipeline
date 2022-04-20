@@ -1,0 +1,16 @@
+version: "3.9"
+services:
+  run:
+    container_name: guitarapp_pipeline_bootstrap
+    build:
+      context: .
+      dockerfile: Pipeline.Dockerfile
+      target: bootstrap
+    environment:
+      # only makes sense in prod environment
+      PIPELINE_ENV: prod
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ACCOUNT: ${AWS_ACCOUNT}
+      # some cloudfront features are only available in us-east-1
+      AWS_REGION: us-east-1

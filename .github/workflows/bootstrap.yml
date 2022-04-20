@@ -1,0 +1,31 @@
+#  task that creates IAM users to be used with
+name: Bootstrap pipeline
+on:
+  workflow_dispatch:
+    inputs:
+      AWS_ACCESS_KEY_ID:
+        description: 'AWS access key id'
+        required: true
+        default: 'CHANGEME'
+      AWS_SECRET_ACCESS_KEY:
+        description: 'AWS secret access key'
+        required: true
+        default: 'CHANGEME'
+      AWS_ACCOUNT:
+        description: 'AWS account number'
+        required: true
+        default: 'CHANGEME'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run bootstrap
+        env:
+          AWS_ACCESS_KEY_ID: ${{ github.event.inputs.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ github.event.inputs.AWS_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT: ${{ github.event.inputs.AWS_ACCOUNT }}
+        run: docker-compose -f Pipeline.bootstrap.yml up --build --exit-code-from run
+        shell: pwsh

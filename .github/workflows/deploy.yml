@@ -1,0 +1,100 @@
+# currently github actions does not allow dynamic names
+# https://github.community/t/github-actions-dynamic-name-of-the-workflow-with-workflow-dispatch/150327/7
+name: Manifest deploy
+on:
+  workflow_dispatch:
+    inputs:
+      APP_ENV:
+        description: 'App environment'
+        required: true
+        default: 'CHANGEME'
+      COLOUR:
+        description: 'Deployment colour'
+        required: true
+        default: 'CHANGEME'
+      MANIFEST_S3_PATH:
+        description: 'Manifest s3 path'
+        required: true
+        default: 'CHANGEME'
+      DEPLOYED_CONFIG_S3_PATH:
+        description: 'Deployed config s3 key'
+        required: true
+        default: 'CHANGEME'
+      TRIGGER_FUNCTION_NAME:
+        description: 'Trigger function name'
+        required: true
+        default: 'CHANGEME'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy ${{ github.event.inputs.APP_ENV }} ${{ github.event.inputs.COLOUR }} ${{ github.event.inputs.MANIFEST_S3_PATH }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run deploy
+        env:
+          APP_ENV: ${{ github.event.inputs.APP_ENV }}
+          COLOUR: ${{ github.event.inputs.COLOUR }}
+          MANIFEST_S3_PATH: ${{ github.event.inputs.MANIFEST_S3_PATH }}
+          DEPLOYED_CONFIG_S3_PATH: ${{ github.event.inputs.DEPLOYED_CONFIG_S3_PATH }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT: ${{ secrets.PIPELINE_AWS_ACCOUNT }}
+        run: docker-compose -f Deploy.yml up --build --exit-code-from run
+        shell: pwsh
+
+  tests:
+    runs-on: ubuntu-latest
+    name: Tests
+    needs: deploy
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Install zx
+        run: npm i -g zx
+
+      - name: Run tests file
+        run: zx ./Tests.mjs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT: ${{ secrets.PIPELINE_AWS_ACCOUNT }}
+          AWS_REGION: us-east-1
+          APP_ENV: ${{ github.event.inputs.APP_ENV }}
+          COLOUR: ${{ github.event.inputs.COLOUR }}
+          MANIFEST_S3_PATH: ${{ github.event.inputs.MANIFEST_S3_PATH }}
+          DEPLOYED_CONFIG_S3_PATH: ${{ github.event.inputs.DEPLOYED_CONFIG_S3_PATH }}
+
+  report:
+    runs-on: ubuntu-latest
+    name: Report deployment success
+    needs: tests
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.x
+
+      - name: Install zx
+        run: npm i -g zx
+
+      - name: Run report file
+        run: zx ./Report.mjs
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT: ${{ secrets.PIPELINE_AWS_ACCOUNT }}
+          AWS_REGION: us-east-1
+          APP_ENV: ${{ github.event.inputs.APP_ENV }}
+          COLOUR: ${{ github.event.inputs.COLOUR }}
+          MANIFEST_S3_PATH: ${{ github.event.inputs.MANIFEST_S3_PATH }}
+          DEPLOYED_CONFIG_S3_PATH: ${{ github.event.inputs.DEPLOYED_CONFIG_S3_PATH }}
+          TRIGGER_FUNCTION_NAME: ${{ github.event.inputs.TRIGGER_FUNCTION_NAME }}

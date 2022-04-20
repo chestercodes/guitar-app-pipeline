@@ -1,0 +1,23 @@
+name: Pipeline pr
+on:
+  pull_request:
+    types: [ assigned, opened, synchronize, reopened ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run diff
+        env:
+          PIPELINE_ENV: prod
+          PIPELINE_GIT_REF: ${{ github.ref_name }}
+          REPOSITORY: ${{ github.repository }}
+          PIPELINE_GITHUB_TOKEN: ${{ secrets.PIPELINE_GITHUB_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.DEPLOY_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.DEPLOY_SECRET_ACCESS_KEY }}
+          AWS_ACCOUNT: ${{ secrets.PIPELINE_AWS_ACCOUNT }}
+        run: docker-compose -f Pipeline.diff.yml up --build --exit-code-from run
+        shell: pwsh

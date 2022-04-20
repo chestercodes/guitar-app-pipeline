@@ -1,0 +1,27 @@
+{
+  "name": "trigger",
+  "version": "1.0.0",
+  "type": "commonjs",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.49.0",
+    "@aws-sdk/client-sns": "^3.51.0",
+    "@octokit/rest": "^18.12.0"
+  },
+  "scripts": {
+    "test": "jest",
+    "build": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@aws-sdk/types": "^3.49.0",
+    "@types/jest": "^26.0.10",
+    "@types/node": "10.17.27",
+    "dotenv": "^16.0.0",
+    "jest": "^26.4.2",
+    "ts-jest": "^26.2.0",
+    "ts-node": "^9.0.0",
+    "typescript": "^4.2.4"
+  }
+}

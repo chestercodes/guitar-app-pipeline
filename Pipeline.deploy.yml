@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  run:
+    container_name: guitarapp_pipeline_deploy
+    build:
+      context: .
+      dockerfile: Pipeline.Dockerfile
+      target: deploy
+    environment:
+      PIPELINE_ENV: ${PIPELINE_ENV}
+      PIPELINE_GIT_REF: ${PIPELINE_GIT_REF}
+      PIPELINE_GITHUB_TOKEN: ${PIPELINE_GITHUB_TOKEN}
+      REPOSITORY: ${REPOSITORY}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_ACCOUNT: ${AWS_ACCOUNT}
+      # some cloudfront features are only available in us-east-1
+      AWS_REGION: us-east-1
