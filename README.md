@@ -34,6 +34,24 @@ Once deployed the trigger lambda can be run manually to deploy to specific envir
 
 ## Getting started
 
+### Code to change
+
+A few bits of code need to be changed prior to bootstrapping. These are:
+
+pipeline/lib/config.ts:
+
+``` javascript
+export const appName = "guitarapp"
+
+...
+
+const repo = getEnv("REPOSITORY", "chestercodes/guitar-app-pipeline")
+```
+
+and all occurances of `guitarapp` in `Pipeline.Dockerfile` to the same value of `appName` above.
+
+### Bootstrapping
+
 To bootstrap the project, go to the github actions tab and run the `Bootstrap pipeline` workflow.
 
 This needs to be done once manually and isn't part of the CI/CD. Further CDK actions will be done as part of the pipeline.
